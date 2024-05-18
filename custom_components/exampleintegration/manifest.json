@@ -1,0 +1,17 @@
+{
+  "domain": "exampleintegration",
+  "name": "Example Integration",
+  "codeowners": [
+    "@msp1974"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/msp1974/exampleintegration",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "requirements": [],
+  "single_config_entry": true,
+  "ssdp": [],
+  "version": "1.0.0",
+  "zeroconf": []
+}
