@@ -66,6 +66,7 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Example Integration."""
 
     VERSION = 1
+    _input_data: dict[str, Any]
 
     @staticmethod
     @callback
