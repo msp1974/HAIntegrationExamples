@@ -26,5 +26,16 @@
         }
       }
     }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "data": {
+          "scan_interval": "Scan Interval (seconds)"
+        },
+        "description": "Amend your options.",
+        "title": "Example Integration Options"
+      }
+    }
   }
 }

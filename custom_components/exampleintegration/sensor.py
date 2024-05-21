@@ -27,15 +27,21 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ):
     """Set up the Sensors."""
+    # This gets the data update coordinator from hass.data as specified in your __init__.py
     coordinator: ExampleCoordinator = hass.data[DOMAIN][
         config_entry.entry_id
-    ].coordinator  # config_entry.runtime_data.coordinator
+    ].coordinator
+
+    # Enumerate all the sensors in your data value from your DataUpdateCoordinator and add an instance of your sensor class
+    # to a list for each one.
+    # This maybe different in your specific case, depending on how your data is structured
     sensors = [
         ExampleSensor(coordinator, device)
         for device in coordinator.data
         if device.device_type == DeviceType.TEMP_SENSOR
     ]
 
+    # Create the sensors.
     async_add_entities(sensors)
 
 
@@ -51,6 +57,7 @@ class ExampleSensor(CoordinatorEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Update sensor with latest data from coordinator."""
+        # This method is called by your DataUpdateCoordinator when a successful update runs.
         self.device = self.coordinator.get_device_by_id(self.device_id)
         _LOGGER.debug("Device: %s", self.device)
         self.async_write_ha_state()
@@ -58,11 +65,15 @@ class ExampleSensor(CoordinatorEntity, SensorEntity):
     @property
     def device_class(self) -> str:
         """Return device class."""
+        # https://developers.home-assistant.io/docs/core/entity/sensor/#available-device-classes
         return SensorDeviceClass.TEMPERATURE
 
     @property
     def device_info(self) -> DeviceInfo:
         """Return device information."""
+        # Identifiers are what group entities into the same device.
+        # If your device is created elsewhere, you can just specify the indentifiers line.
+        # If your device connects via another device, add via_device with the indentifiers of that device.
         return DeviceInfo(
             name=f"ExampleDevice{self.device.device_id}",
             manufacturer="ACME Manufacturer",
@@ -79,6 +90,8 @@ class ExampleSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> int | float:
         """Return the state of the entity."""
+        # Using native value and native unit of measurement, allows you to change units
+        # in Lovelace and HA will automatically calculate the correct value.
         return float(self.device.state)
 
     @property
@@ -89,14 +102,20 @@ class ExampleSensor(CoordinatorEntity, SensorEntity):
     @property
     def state_class(self) -> str | None:
         """Return state class."""
+        # https://developers.home-assistant.io/docs/core/entity/sensor/#available-state-classes
         return SensorStateClass.MEASUREMENT
 
     @property
     def unique_id(self) -> str:
         """Return unique id."""
+        # All entities must have a unique id.  Think carefully what you want this to be as
+        # changing it later will cause HA to create new entities.
         return f"{DOMAIN}-{self.device.device_id}-{self.device.name}"
 
     @property
     def extra_state_attributes(self):
         """Return the extra state attributes."""
-        return {}
+        # Add any additional attributes you want on your sensor.
+        attrs = {}
+        attrs["extra_info"] = "Extra Info"
+        return attrs
