@@ -1,12 +1,14 @@
 # Example Home Assistant Integration
 
-This example integration attempts to give a good basic framework for those wishing to develop a HA custom integration but have little knowledge of how to start.
+These example integrations attempt to give a good basic framework for those wishing to develop a HA custom integration but have little knowledge of how to start.
 
-It builds upon the basic scaffold integration code from HA with some enhancements to make it more functional and closer to what is needed to build a functioning integration.
+They are all based on the `Integration 101 Template` and build on this for specific functionalities you may want in your own integration, so you can see how they operate and learn from the code.  If you are completely new to building integrations for Home Assistant, start with the 101 Template and ensure you understand that before moving to more advanced topics.
 
-## Can I Run It?
+The `Integration 101 Template` builds upon the basic scaffold integration code from HA with some enhancements to make it more functional and closer to what is needed to build a functioning integration.
 
-Yes, this is a fully functioning integration (I mean it doesn't do anything as the api is mocked), that will provide a config flow to add the integration and create 4 devices with 2 sensors each (a binary sensor door entity and a temperature sensor entity).
+## Can I Run Them?
+
+Yes, these are fully functioning integrations (I mean they don't do anything as the api is mocked), that will provide a config flow to add the integration and create 4 devices with 2 sensors each (a binary sensor door entity and a temperature sensor entity).
 
 The mocked api is designed to randomly change the door open/closed status and the temp sensor values, so it looks like it is getting actual readings from real devices.
 
@@ -30,11 +32,11 @@ If you are going to start developing integrations, there are some things you nee
 
     If you are like me, walking through existing working examples, is a good way to learn and there is also much on google.  The biggest learning curve (IMHO), is how to get going with an integration.  The development documentation is pretty good in places but I think much more of a reference guide than a step by step getting you going.  That is why I decided to put some time to create this working example that includes the key elements you will need for pretty much any custom integration.
 
-So, once you have ticked off your todo list above, you can install this by cloning from your fork to your machine.  Only copy the `exampleintegration` folder into your config\custom_components folder.  Once you are a bit more familiar with the development process and the required tools, see advanced note below on how I do it to make my life easier.
+So, once you have ticked off your todo list above, you can install one of these examples by cloning from your fork to your machine.  You can copy all the folders into your config\custom_components folder or just choose one.  Once you are a bit more familiar with the development process and the required tools, see advanced note below on how I do it to make my life easier.
 
 ## Starting to Code Your Own Integration
 
-This example code is a basic foundation for an integration.  It is unlikely that you can just copy it, make a few tweaks and off you go.  However, it tries to demonstrate many of the HA concepts that most integrations would need.
+These example integrations are basic foundations for an integration.  It is unlikely that you can just copy it, make a few tweaks and off you go.  However, it tries to demonstrate many of the HA concepts that most integrations would need.
 
 If you are starting out using this example, I would recommend taking the following path.  In each step, add logging output to help you see what is going on - use simple text to show you have reached a point in a function, output api responses, variable values etc.
 
