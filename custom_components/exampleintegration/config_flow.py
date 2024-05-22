@@ -72,14 +72,15 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
-        # Remove this method if you do not want an options for your integration.
+        # Remove this method and the ExampleOptionsFlowHandler class
+        # if you do not want any options for your integration.
         return ExampleOptionsFlowHandler(config_entry)
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle the initial step."""
-        # This is called when you setup an integration
+        # Called when you initiate adding an integration via the UI
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -114,7 +115,7 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
         """Add reconfigure step to allow to reconfigure a config entry."""
         # This methid displays a reconfigure option in the integration and is
         # different to options.
-        # It can be used to reconfigure any of the data submitted when first setup.
+        # It can be used to reconfigure any of the data submitted when first installed.
         # This is optional and can be removed if you do not want to allow reconfiguration.
         errors: dict[str, str] = {}
         config_entry = self.hass.config_entries.async_get_entry(
@@ -123,7 +124,8 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                info = await validate_input(self.hass, user_input)
+                user_input[CONF_HOST] = config_entry.data[CONF_HOST]
+                await validate_input(self.hass, user_input)
             except CannotConnect:
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
@@ -134,7 +136,7 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 return self.async_update_reload_and_abort(
                     config_entry,
-                    unique_id=info.get("title"),
+                    unique_id=config_entry.unique_id,
                     data={**config_entry.data, **user_input},
                     reason="reconfigure_successful",
                 )
@@ -142,7 +144,6 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="reconfigure",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_HOST, default=config_entry.data[CONF_HOST]): str,
                     vol.Required(
                         CONF_USERNAME, default=config_entry.data[CONF_USERNAME]
                     ): str,
@@ -154,7 +155,7 @@ class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class ExampleOptionsFlowHandler(OptionsFlow):
-    """Handles JLRIncontrol options."""
+    """Handles the options flow."""
 
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize options flow."""
@@ -163,14 +164,13 @@ class ExampleOptionsFlowHandler(OptionsFlow):
 
     async def async_step_init(self, user_input=None):
         """Handle options flow."""
-        return await self.async_step_user()
-
-    async def async_step_user(self, user_input=None):
-        """Manage the options."""
         if user_input is not None:
             options = self.config_entry.options | user_input
             return self.async_create_entry(title="", data=options)
 
+        # It is recommended to prepopulate options fields with default values if available.
+        # These will be the same default values you use on your coordinator for setting variable values
+        # if the option has not been set.
         data_schema = vol.Schema(
             {
                 vol.Required(
@@ -180,7 +180,7 @@ class ExampleOptionsFlowHandler(OptionsFlow):
             }
         )
 
-        return self.async_show_form(step_id="user", data_schema=data_schema)
+        return self.async_show_form(step_id="init", data_schema=data_schema)
 
 
 class CannotConnect(HomeAssistantError):

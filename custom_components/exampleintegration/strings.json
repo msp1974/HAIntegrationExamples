@@ -29,7 +29,7 @@
   },
   "options": {
     "step": {
-      "user": {
+      "init": {
         "data": {
           "scan_interval": "Scan Interval (seconds)"
         },
