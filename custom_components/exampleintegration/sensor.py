@@ -37,7 +37,7 @@ async def async_setup_entry(
     # This maybe different in your specific case, depending on how your data is structured
     sensors = [
         ExampleSensor(coordinator, device)
-        for device in coordinator.data
+        for device in coordinator.data.devices
         if device.device_type == DeviceType.TEMP_SENSOR
     ]
 
@@ -72,14 +72,19 @@ class ExampleSensor(CoordinatorEntity, SensorEntity):
     def device_info(self) -> DeviceInfo:
         """Return device information."""
         # Identifiers are what group entities into the same device.
-        # If your device is created elsewhere, you can just specify the indentifiers line.
-        # If your device connects via another device, add via_device with the indentifiers of that device.
+        # If your device is created elsewhere, you can just specify the indentifiers parameter.
+        # If your device connects via another device, add via_device parameter with the indentifiers of that device.
         return DeviceInfo(
             name=f"ExampleDevice{self.device.device_id}",
             manufacturer="ACME Manufacturer",
             model="Door&Temp v1",
             sw_version="1.0",
-            identifiers={(DOMAIN, f"exampledevice-sensor-{self.device.device_id}")},
+            identifiers={
+                (
+                    DOMAIN,
+                    f"{self.coordinator.data.controller_name}-{self.device.device_id}",
+                )
+            },
         )
 
     @property
@@ -110,7 +115,7 @@ class ExampleSensor(CoordinatorEntity, SensorEntity):
         """Return unique id."""
         # All entities must have a unique id.  Think carefully what you want this to be as
         # changing it later will cause HA to create new entities.
-        return f"{DOMAIN}-{self.device.device_id}-{self.device.name}"
+        return f"{DOMAIN}-{self.device.device_unique_id}"
 
     @property
     def extra_state_attributes(self):

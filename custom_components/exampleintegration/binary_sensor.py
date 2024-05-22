@@ -35,7 +35,7 @@ async def async_setup_entry(
     # This maybe different in your specific case, depending on how your data is structured
     binary_sensors = [
         ExampleBinarySensor(coordinator, device)
-        for device in coordinator.data
+        for device in coordinator.data.devices
         if device.device_type == DeviceType.DOOR_SENSOR
     ]
 
@@ -77,7 +77,12 @@ class ExampleBinarySensor(CoordinatorEntity, BinarySensorEntity):
             manufacturer="ACME Manufacturer",
             model="Door&Temp v1",
             sw_version="1.0",
-            identifiers={(DOMAIN, f"exampledevice-sensor-{self.device.device_id}")},
+            identifiers={
+                (
+                    DOMAIN,
+                    f"{self.coordinator.data.controller_name}-{self.device.device_id}",
+                )
+            },
         )
 
     @property
@@ -96,7 +101,7 @@ class ExampleBinarySensor(CoordinatorEntity, BinarySensorEntity):
         """Return unique id."""
         # All entities must have a unique id.  Think carefully what you want this to be as
         # changing it later will cause HA to create new entities.
-        return f"{DOMAIN}-{self.device.device_id}-{self.device.name}"
+        return f"{DOMAIN}-{self.device.device_unique_id}"
 
     @property
     def extra_state_attributes(self):

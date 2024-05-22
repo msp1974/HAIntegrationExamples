@@ -1,5 +1,6 @@
 """Example integration using DataUpdateCoordinator."""
 
+from dataclasses import dataclass
 from datetime import timedelta
 import logging
 
@@ -19,8 +20,18 @@ from .const import DEFAULT_SCAN_INTERVAL
 _LOGGER = logging.getLogger(__name__)
 
 
+@dataclass
+class ExampleAPIData:
+    """Class to hold api data."""
+
+    controller_name: str
+    devices: list[Device]
+
+
 class ExampleCoordinator(DataUpdateCoordinator):
     """My example coordinator."""
+
+    data: ExampleAPIData
 
     def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         """Initialize coordinator."""
@@ -68,12 +79,14 @@ class ExampleCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
         # What is returned here is stored in self.data by the DataUpdateCoordinator
-        return devices
+        return ExampleAPIData(self.api.controller_name, devices)
 
     def get_device_by_id(self, device_id) -> Device | None:
         """Return device by device id."""
         # Called by the binary sensors and sensors to get their updated data from self.data
         try:
-            return [device for device in self.data if device.device_id == device_id][0]
+            return [
+                device for device in self.data.devices if device.device_id == device_id
+            ][0]
         except IndexError:
             return None
