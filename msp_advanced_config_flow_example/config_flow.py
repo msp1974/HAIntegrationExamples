@@ -1,4 +1,4 @@
-"""Config flow for Example Integration.
+"""Config flow for Advanced Config Flow Example integration.
 
 This config flow demonstrates many aspects of possible config flows.
 

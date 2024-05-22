@@ -1,4 +1,4 @@
-"""Config flow for Example Integration integration."""
+"""Config flow for Integration 101 Template integration."""
 
 from __future__ import annotations
 

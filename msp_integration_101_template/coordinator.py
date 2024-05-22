@@ -1,4 +1,4 @@
-"""Example integration using DataUpdateCoordinator."""
+"""Integration 101 Template integration using DataUpdateCoordinator."""
 
 from dataclasses import dataclass
 from datetime import timedelta
@@ -14,7 +14,7 @@ from homeassistant.const import (
 from homeassistant.core import DOMAIN, HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import API, APIAuthError, Device
+from .api import API, APIAuthError, Device, DeviceType
 from .const import DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
@@ -81,12 +81,16 @@ class ExampleCoordinator(DataUpdateCoordinator):
         # What is returned here is stored in self.data by the DataUpdateCoordinator
         return ExampleAPIData(self.api.controller_name, devices)
 
-    def get_device_by_id(self, device_id) -> Device | None:
+    def get_device_by_id(
+        self, device_type: DeviceType, device_id: int
+    ) -> Device | None:
         """Return device by device id."""
         # Called by the binary sensors and sensors to get their updated data from self.data
         try:
             return [
-                device for device in self.data.devices if device.device_id == device_id
+                device
+                for device in self.data.devices
+                if device.device_type == device_type and device.device_id == device_id
             ][0]
         except IndexError:
             return None

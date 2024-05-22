@@ -1,6 +1,6 @@
 {
   "config": {
-    "title": "Example Integration - Multi Step Config",
+    "title": "Advanced Config Flow Example",
     "abort": {
       "already_configured": "Device is already configured",
       "reconfigure_successful": "Reconfiguration successful"
@@ -8,6 +8,7 @@
     "error": {
       "cannot_connect": "Failed to connect",
       "invalid_auth": "Invalid authentication",
+      "invalid_settings": "Invalid settings",
       "unknown": "Unexpected error"
     },
     "step": {
@@ -23,7 +24,8 @@
         "title": "Multi Step Config - Step 2",
         "data": {
           "sensors": "Sensor",
-          "choose": "Selector"
+          "choose": "Selector",
+          "minimum": "Minimum Value"
         }
       },
       "reconfigure": {
@@ -49,14 +51,15 @@
         "title": "Example2 Options",
         "description": "Option Set 1",
         "data": {
-          "scan_interval": "Scan Interval (seconds)"
+          "scan_interval": "Scan Interval (seconds)",
+          "description": "My Description"
         }
       },
       "option2": {
         "title": "Example2 Options",
         "description": "Option Set 2",
         "data": {
-          "description": "My Description"
+          "chose": "Pick a device"
         }
       }
     }

@@ -1,4 +1,4 @@
-"""Example integration using DataUpdateCoordinator."""
+"""Advanced Config Flow Example integration using DataUpdateCoordinator."""
 
 from dataclasses import dataclass
 from datetime import timedelta

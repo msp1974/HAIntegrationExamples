@@ -1,12 +1,12 @@
 {
-  "domain": "exampleintegration2",
-  "name": "Example Integration - Multi Step Config",
+  "domain": "msp_advanced_config_flow_example",
+  "name": "MSP Advanced Config Flow Example",
   "codeowners": [
     "@msp1974"
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/msp1974/exampleintegration",
+  "documentation": "https://github.com/msp1974/HAIntegrationExamples",
   "homekit": {},
   "iot_class": "local_polling",
   "requirements": [],
