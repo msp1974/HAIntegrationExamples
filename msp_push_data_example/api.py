@@ -150,7 +150,7 @@ class PushAPI(API):
     async def async_update_devices(self) -> None:
         """Loop to send updated device data every 15s."""
         while self.connected:
-            delay = randrange(10, 30)
+            delay = randrange(10, 12)
             _LOGGER.debug("Next update for devices in %is", delay)
             await asyncio.sleep(delay)
             devices = await self.get_devices()

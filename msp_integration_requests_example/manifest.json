@@ -1,0 +1,17 @@
+{
+  "domain": "msp_integration_101_requests_example",
+  "name": "MSP Integration 101 Requests Example",
+  "codeowners": [
+    "@msp1974"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/msp1974/HAIntegrationExamples",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "requirements": [],
+  "single_config_entry": false,
+  "ssdp": [],
+  "version": "1.0.0",
+  "zeroconf": []
+}
