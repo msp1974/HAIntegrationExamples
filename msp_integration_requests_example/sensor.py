@@ -179,6 +179,11 @@ class ExampleVoltageSensor(ExampleBaseSensor):
         """Return unit of temperature."""
         return UnitOfElectricPotential.VOLT
 
+    @property
+    def suggested_display_precision(self) -> int | None:
+        """Return the suggested number of decimal digits for display."""
+        return 1
+
 
 class ExampleCurrentSensor(ExampleBaseSensor):
     """Class to handle current sensors.
