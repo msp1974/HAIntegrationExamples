@@ -66,7 +66,7 @@ class API:
     def get_data(self, path: str) -> dict[str, Any]:
         """Get api data."""
         try:
-            r = requests.get(f"{self.host}/{path}", timeout=10)
+            r = requests.get(f"http://{self.host}/{path}", timeout=10)
             return r.json()
         except requests.exceptions.ConnectTimeout as err:
             raise APIConnectionError("Timeout connecting to api") from err
