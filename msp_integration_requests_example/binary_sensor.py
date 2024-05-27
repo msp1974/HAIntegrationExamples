@@ -74,8 +74,8 @@ class ExampleBinarySensor(CoordinatorEntity, BinarySensorEntity):
         return DeviceInfo(
             name=device_name,
             manufacturer="ACME Manufacturer",
-            model="MyAPI v1",
-            sw_version="1.0",
+            model=self.coordinator.get_api_data_value("role"),
+            sw_version=self.coordinator.get_api_data_value("code_version"),
             identifiers={(DOMAIN, f"{device_name}")},
         )
 
