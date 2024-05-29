@@ -1,0 +1,56 @@
+rename_device_service:
+  name: Example 101 Rename API device
+  description: >
+    Change the name of a device on the example API
+  fields:
+    device_id:
+      name: Device ID
+      description: The device ID to rename
+      example: 1
+      required: true
+      selector:
+        number:
+          min: 1
+          step: 1
+          mode: box
+    name:
+      name: Device name
+      description: New name for the device
+      example: "Kitchen Light 3"
+      required: true
+      selector:
+        text:
+
+response_service:
+  name: Example 101 Response Service
+  description: A simple response service
+  fields:
+    device_id:
+      name: Device ID
+      description: The name of the entity to perform the service on
+      example: 1
+      required: true
+      selector:
+        number:
+          min: 1
+          step: 1
+          mode: box
+
+
+set_off_timer:
+  name: Set off timer
+  decription: Set an off timer for a light
+  target:
+    entity:
+      integration: msp_integration_101_intermediate
+      domain:
+        - light
+  fields:
+    off_time:
+      name: "Turn off in"
+      description: "The time to countdown to turn off"
+      example: "12:00:00"
+      default: "12:00:00"
+      required: true
+      selector:
+        time:

@@ -3,7 +3,8 @@
     "title": "Advanced Config Flow Example",
     "abort": {
       "already_configured": "Device is already configured",
-      "reconfigure_successful": "Reconfiguration successful"
+      "reconfigure_successful": "Reconfiguration successful",
+      "already_in_progress": "A setup is already in progress for this integration"
     },
     "error": {
       "cannot_connect": "Failed to connect",

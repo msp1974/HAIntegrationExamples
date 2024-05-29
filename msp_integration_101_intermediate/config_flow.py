@@ -1,10 +1,10 @@
-"""Config flow for Advanced Config Flow Example integration.
+"""Config flows for our integration.
 
 This config flow demonstrates many aspects of possible config flows.
 
 Multi step flows
 Menus
-Using api data in your flow
+Using your api data in your flow
 """
 
 from __future__ import annotations
@@ -40,7 +40,9 @@ from .coordinator import ExampleCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
+# ----------------------------------------------------------------------------
+# Adjust the data schema to the data that you need
+# ----------------------------------------------------------------------------
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST, description={"suggested_value": "10.10.10.1"}): str,
@@ -49,9 +51,11 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
+# ----------------------------------------------------------------------------
 # Example selectors
 # There are lots of selectors available for you to use, described at
 # https://www.home-assistant.io/docs/blueprint/selectors/
+# ----------------------------------------------------------------------------
 STEP_SETTINGS_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_SENSORS): selector(
@@ -77,13 +81,14 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
-    # Validate the user input data can be used to set up a connection.
-    api = API(data[CONF_HOST], data[CONF_USERNAME], data[CONF_PASSWORD])
     try:
+        # ----------------------------------------------------------------------------
         # If your api is not async, use the executor to access it
-        await hass.async_add_executor_job(api.connect)
         # If you cannot connect, raise CannotConnect
         # If the authentication is wrong, raise InvalidAuth
+        # ----------------------------------------------------------------------------
+        api = API(data[CONF_HOST], data[CONF_USERNAME], data[CONF_PASSWORD], mock=True)
+        await hass.async_add_executor_job(api.get_data)
     except APIAuthError as err:
         raise InvalidAuth from err
     except APIConnectionError as err:
@@ -96,7 +101,7 @@ async def validate_settings(hass: HomeAssistant, data: dict[str, Any]) -> bool:
     return True
 
 
-class Example2ConfigFlow(ConfigFlow, domain=DOMAIN):
+class ExampleConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Example Integration."""
 
     VERSION = 1
@@ -106,10 +111,12 @@ class Example2ConfigFlow(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        """Get the options flow for this handler."""
-        # Remove this method and the ExampleOptionsFlowHandler class
-        # if you do not want any options for your integration.
-        return Example2OptionsFlowHandler(config_entry)
+        """Get the options flow for this handler.
+
+        Remove this method and the ExampleOptionsFlowHandler class
+        if you do not want any options for your integration.
+        """
+        return ExampleOptionsFlowHandler(config_entry)
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -124,9 +131,11 @@ class Example2ConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             # The form has been filled in and submitted, so process the data provided.
             try:
+                # ----------------------------------------------------------------------------
                 # Validate that the setup data is valid and if not handle errors.
                 # You can do any validation you want or no validation on each step.
                 # The errors["base"] values match the values in your strings.json and translation files.
+                # ----------------------------------------------------------------------------
                 info = await validate_input(self.hass, user_input)
             except CannotConnect:
                 errors["base"] = "cannot_connect"
@@ -139,17 +148,21 @@ class Example2ConfigFlow(ConfigFlow, domain=DOMAIN):
             if "base" not in errors:
                 # Validation was successful, so proceed to the next step.
 
+                # ----------------------------------------------------------------------------
                 # Setting our unique id here just because we have the info at this stage to do that
                 # and it will abort early on in the process if alreay setup.
                 # You can put this in any step however.
+                # ----------------------------------------------------------------------------
                 await self.async_set_unique_id(info.get("title"))
                 self._abort_if_unique_id_configured()
 
                 # Set our title variable here for use later
                 self._title = info["title"]
 
+                # ----------------------------------------------------------------------------
                 # You need to save the input data to a class variable as you go through each step
                 # to ensure it is accessible across all steps.
+                # ----------------------------------------------------------------------------
                 self._input_data = user_input
 
                 # Call the next step
@@ -181,13 +194,16 @@ class Example2ConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "invalid_settings"
 
             if "base" not in errors:
-                # Validation was successful, so create a unique id for this instance of your integration
-                # and create the config entry.
+                # ----------------------------------------------------------------------------
+                # Validation was successful, so create the config entry.
+                # ----------------------------------------------------------------------------
                 self._input_data.update(user_input)
                 return self.async_create_entry(title=self._title, data=self._input_data)
 
+        # ----------------------------------------------------------------------------
         # Show settings form.  The step id always needs to match the bit after async_step_ in your method.
         # Set last_step to True here if it is last step.
+        # ----------------------------------------------------------------------------
         return self.async_show_form(
             step_id="settings",
             data_schema=STEP_SETTINGS_DATA_SCHEMA,
@@ -242,7 +258,7 @@ class Example2ConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
 
-class Example2OptionsFlowHandler(OptionsFlow):
+class ExampleOptionsFlowHandler(OptionsFlow):
     """Handles the options flow.
 
     Here we use an initial menu to select different options forms,
@@ -255,10 +271,13 @@ class Example2OptionsFlowHandler(OptionsFlow):
         self.options = dict(config_entry.options)
 
     async def async_step_init(self, user_input=None):
-        """Handle options flow."""
-        # Display an options menu
-        # option ids relate to step function name
-        # Also need to be in strings.json and translation files.
+        """Handle options flow.
+
+        Display an options menu
+        option ids relate to step function name
+        Also need to be in strings.json and translation files.
+        """
+
         return self.async_show_menu(
             step_id="init",
             menu_options=["option1", "option2"],
@@ -270,9 +289,12 @@ class Example2OptionsFlowHandler(OptionsFlow):
             options = self.config_entry.options | user_input
             return self.async_create_entry(title="", data=options)
 
-        # It is recommended to prepopulate options fields with default values if available.
-        # These will be the same default values you use on your coordinator for setting variable values
-        # if the option has not been set.
+        # ----------------------------------------------------------------------------
+        # It is recommended to prepopulate options fields with default values if
+        # available.
+        # These will be the same default values you use on your coordinator for
+        # setting variable values if the option has not been set.
+        # ----------------------------------------------------------------------------
         data_schema = vol.Schema(
             {
                 vol.Optional(
@@ -289,22 +311,24 @@ class Example2OptionsFlowHandler(OptionsFlow):
         return self.async_show_form(step_id="option1", data_schema=data_schema)
 
     async def async_step_option2(self, user_input=None):
-        """Handle menu option 2 flow."""
+        """Handle menu option 2 flow.
+
+        In this option, we show how to use dynamic data in a selector.
+        """
         if user_input is not None:
             options = self.config_entry.options | user_input
             return self.async_create_entry(title="", data=options)
 
-        # In this option, we show how to use dynamic data in a selector.
         coordinator: ExampleCoordinator = self.hass.data[DOMAIN][
             self.config_entry.entry_id
         ].coordinator
         devices = coordinator.data
         data_schema = vol.Schema(
             {
-                vol.Optional(CONF_CHOOSE, default=devices[0].name): selector(
+                vol.Optional(CONF_CHOOSE, default=devices[0]["device_name"]): selector(
                     {
                         "select": {
-                            "options": [device.name for device in devices],
+                            "options": [device["device_name"] for device in devices],
                             "mode": "dropdown",
                             "sort": True,
                         }

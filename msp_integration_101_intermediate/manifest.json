@@ -1,6 +1,6 @@
 {
-  "domain": "msp_advanced_config_flow_example",
-  "name": "MSP Advanced Config Flow Example",
+  "domain": "msp_integration_101_intermediate",
+  "name": "MSP Integration 101 Intermediate Example",
   "codeowners": [
     "@msp1974"
   ],
