@@ -2,15 +2,66 @@
 
 These example integrations attempt to give a good basic framework for those wishing to develop a HA custom integration but have little knowledge of how to start.
 
-They are all based on the `Integration 101 Template` and build on this for specific functionalities you may want in your own integration, so you can see how they operate and learn from the code.  If you are completely new to building integrations for Home Assistant, start with the 101 Template and ensure you understand that before moving to more advanced topics.
+There are 3 main integrations here as follows:
 
-The `Integration 101 Template` builds upon the basic scaffold integration code from HA with some enhancements to make it more functional and closer to what is needed to build a functioning integration.
+## Integration 101 Template
+
+  This is (in my view) the basic building blocks to get started on your own integration.  It will need some modifications by you to suit your own specifics but it shows how to:
+
+- Integration Initialisation
+  - The basic steps to initialise your integration
+  - Adding a listener to reload your integration if options change
+  - Adding the option to delete devices in the UI
+
+- Config Flow
+  - Create a basic config flow to setup your integration via the UI
+  - Create a config flow to reconfigure your integration
+  - Creat an options flow to allow setting of optional parameters
+
+- Using a DataUpdateCoordinator 
+  - How to setup a data coordinator to manage communication with your api
+  - How to store and use that data across your entity platforms
+
+- Entity platforms
+  - Examples of adding binary sensors
+  - Examples of adding sensors
+
+## Integration 101 Intermediate
+
+This builds on the Integration 101 Template and adds some more advanced functionality to help make your integration more functional:
+
+- Config Flow
+  - Multi-step flows
+  - Using selectors in your flows
+  - Using data from your api in a config flow
+
+- Entity Platforms
+  - Setting up switches, lights and fans as examples of entites that can control your devices
+  - Using `_attr_*` attributes in your entity classes to reduce code size
+
+- Base Entity
+  - Using a base entity from which to inherit all your entity classes to make you code smaller and neater
+
+- Services
+  - Entity services to call against your entities
+  - Integration services to call against your integration/api
+
+## Integration 101 Advanced
+
+This is currently a work in progress but will add the following to the Integration 101 Intermediate example.
+
+- Translations
+- Websockets
+- Firing Events
+- Device Triggers for automations
+- And maybe more... (please raise and issue to see a subject covered)
+
 
 ## Can I Run Them?
 
-Yes, these are fully functioning integrations (I mean they don't do anything as the api is mocked), that will provide a config flow to add the integration and create 4 devices with 2 sensors each (a binary sensor door entity and a temperature sensor entity).
+Yes, these are fully functioning integrations (I mean they don't do anything as the api is mocked), that will provide a config flow to add the integration and create devices with entities.
 
-The mocked api is designed to randomly change the door open/closed status and the temp sensor values, so it looks like it is getting actual readings from real devices.
+In the Integration 101 Template, the mocked api is designed to randomly change the door open/closed status and the temp sensor values, so it looks like it is getting actual readings from real devices.  The Integration 101 Intermedate and Advanced don't do this.
 
 NOTE: For the purposes of being a good example, the api only accepts a specific username and password.  These are prepopulated when adding the integration (do not do this with your own real world integrations!).  If you modify these, you will get an Authorisation error (but thats what should happen if they are wrong!).
 
@@ -47,23 +98,7 @@ If you are starting out using this example, I would recommend taking the followi
 
 ## Breaking Down The Code
 
-I have tried to comment the code to provide explanaitions of what is happening and what you should change for your own integration.  The below are key things I think are worth mentioning.
-
-1. **Config Flow**
-
-    This is the functionality to provide setup via the UI.  Many new starters to coding, start with a yaml config as it seems easier, but once you understand how to write a config flow (and it is quite simple), this is a much better way to setup and manage your integration from the start.
-
-    See the config_flow.py file with comments to see how it works.  This is much enhanced from the scaffold version to include a reconfigure flow and options flow.
-
-    It is possible (and quite simple) to do multi step flows, which will be covered in another later example.
-
-2. **The DataUpdateCoordinator**
-
-    To me, this should be a default for any integration that gets its data from an api (whether it be a pull (polling) or push type api). It provides much of the functionality to manage polling, receive a websocket message, process your data and update all your entities without you having to do much coding and ensures that all api code is ring fenced within this class.
-
-3. **Devices**
-
-    These are a nice way to group your entities that relate to the same physical device.  Again, this is often very confusing how to create these for an integration.  However, with simple explained code, this can be quite straight forward.
+Each example folder has a README file in which I have tried to explain each of the main elements.  I have also commented the code to provide explanaitions of what is happening and what you should change for your own integration.
 
 ## Advanced Notes
 
