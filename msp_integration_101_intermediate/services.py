@@ -62,7 +62,7 @@ class ExampleServicesSetup:
         self.hass.services.async_register(
             DOMAIN,
             RENAME_DEVICE_SERVICE_NAME,
-            self.rename_device,
+            self.async_rename_device,
             schema=RENAME_DEVICE_SERVICE_SCHEMA,
         )
 
@@ -74,12 +74,12 @@ class ExampleServicesSetup:
         self.hass.services.async_register(
             DOMAIN,
             RESPONSE_SERVICE_NAME,
-            self.async_response_service,
+            self.response_service,
             schema=RESPONSE_SERVICE_SCHEMA,
             supports_response=SupportsResponse.ONLY,
         )
 
-    async def rename_device(self, service_call: ServiceCall) -> None:
+    async def async_rename_device(self, service_call: ServiceCall) -> None:
         """Execute simple service call function.
 
         This will send a command to the api which will cause the
@@ -118,8 +118,11 @@ class ExampleServicesSetup:
         await self.coordinator.async_request_refresh()
 
     @callback
-    def async_response_service(self, service_call: ServiceCall) -> None:
+    def response_service(self, service_call: ServiceCall) -> None:
         """Execute response service call function.
+
+        The @callback signifies this is safe to run on the event loop.
+        Without the @callback ths will run on a thread.
 
         This will take a device id and return json data for the
         devices info on the api.
