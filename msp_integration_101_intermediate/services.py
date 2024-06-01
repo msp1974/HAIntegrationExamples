@@ -57,12 +57,12 @@ class ExampleServicesSetup:
         """Initialise the services in Hass."""
         # ----------------------------------------------------------------------------
         # A simple definition of a service with 2 parameters, as denoted by the
-        # SIMPLE_SERVICE_SCHEMA
+        # RENAME_DEVICE_SERVICE_SCHEMA
         # ----------------------------------------------------------------------------
         self.hass.services.async_register(
             DOMAIN,
             RENAME_DEVICE_SERVICE_NAME,
-            self.async_rename_device,
+            self.rename_device,
             schema=RENAME_DEVICE_SERVICE_SCHEMA,
         )
 
@@ -74,16 +74,16 @@ class ExampleServicesSetup:
         self.hass.services.async_register(
             DOMAIN,
             RESPONSE_SERVICE_NAME,
-            self.response_service,
+            self.async_response_service,
             schema=RESPONSE_SERVICE_SCHEMA,
             supports_response=SupportsResponse.ONLY,
         )
 
-    async def async_rename_device(self, service_call: ServiceCall) -> None:
-        """Execute simple service call function.
+    async def rename_device(self, service_call: ServiceCall) -> None:
+        """Execute rename device service call function.
 
-        This will send a command to the api which will cause the
-        api to output this text to the debug log.
+        This will send a command to the api which will rename the
+        device and then update the device registry to match.
 
         Data from the service call will be in service_call.data
         as seen below.
@@ -91,38 +91,43 @@ class ExampleServicesSetup:
         device_id = service_call.data[ATTR_DEVICE_ID]
         device_name = service_call.data[ATTR_NAME]
 
-        result = await self.hass.async_add_executor_job(
-            self.coordinator.api.set_data, device_id, "device_name", device_name
-        )
+        # check for valid device id
+        try:
+            assert self.coordinator.get_device(device_id) is not None
+        except AssertionError as ex:
+            raise HomeAssistantError(
+                "Error calling service: The device ID does not exist"
+            ) from ex
+        else:
+            result = await self.hass.async_add_executor_job(
+                self.coordinator.api.set_data, device_id, "device_name", device_name
+            )
 
-        if result:
-            # ----------------------------------------------------------------------------
-            # In this scenario, we would need to update the device registry name here
-            # as it will not automatically update.
-            # ----------------------------------------------------------------------------
+            if result:
+                # ----------------------------------------------------------------------------
+                # In this scenario, we would need to update the device registry name here
+                # as it will not automatically update.
+                # ----------------------------------------------------------------------------
 
-            # Get our device from coordinator data to retrieve its devie_uid as that is
-            # what we used in the devices identifiers.
-            device = self.coordinator.get_device(device_id)
+                # Get our device from coordinator data to retrieve its devie_uid as that is
+                # what we used in the devices identifiers.
+                device = self.coordinator.get_device(device_id)
 
-            # Get the device registry
-            dr = async_get_dr(self.hass)
+                # Get the device registry
+                dr = async_get_dr(self.hass)
 
-            # Get the device entry in the registry by its identifiers.  This is the same as
-            # we used to set them in base.py
-            device_entry = dr.async_get_device([(DOMAIN, device["device_uid"])])
+                # Get the device entry in the registry by its identifiers.  This is the same as
+                # we used to set them in base.py
+                device_entry = dr.async_get_device([(DOMAIN, device["device_uid"])])
 
-            # Update our device entry with the new name.  You will see this change in the UI
-            dr.async_update_device(device_entry.id, name=device_name)
+                # Update our device entry with the new name.  You will see this change in the UI
+                dr.async_update_device(device_entry.id, name=device_name)
 
-        await self.coordinator.async_request_refresh()
+            await self.coordinator.async_request_refresh()
 
     @callback
-    def response_service(self, service_call: ServiceCall) -> None:
+    def async_response_service(self, service_call: ServiceCall) -> None:
         """Execute response service call function.
-
-        The @callback signifies this is safe to run on the event loop.
-        Without the @callback ths will run on a thread.
 
         This will take a device id and return json data for the
         devices info on the api.
