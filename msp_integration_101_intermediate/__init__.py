@@ -79,11 +79,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     # ----------------------------------------------------------------------------
     # Initialise a listener for config flow options changes.
+    # This will be removed automatically if the integraiton is unloaded.
     # See config_flow for defining an options setting that shows up as configure
     # on the integration.
     # If you do not want any config flow options, no need to have listener.
     # ----------------------------------------------------------------------------
-    cancel_update_listener = config_entry.add_update_listener(_async_update_listener)
+    cancel_update_listener = config_entry.async_on_unload(
+        config_entry.add_update_listener(_async_update_listener)
+    )
 
     # ----------------------------------------------------------------------------
     # Add the coordinator and update listener to hass data to make
@@ -114,7 +117,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     return True
 
 
-async def _async_update_listener(hass: HomeAssistant, config_entry):
+async def _async_update_listener(hass: HomeAssistant, config_entry: ConfigEntry):
     """Handle config options update.
 
     Reload the integration when the options change.
@@ -141,8 +144,10 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
     This is called when you remove your integration or shutdown HA.
     If you have created any custom services, they need to be removed here too.
     """
-    # Remove the config options update listener
-    hass.data[DOMAIN][config_entry.entry_id].cancel_update_listener()
+
+    # Unload services
+    for service in hass.services.async_services_for_domain(DOMAIN):
+        hass.services.async_remove(DOMAIN, service)
 
     # Unload platforms
     unload_ok = await hass.config_entries.async_unload_platforms(
