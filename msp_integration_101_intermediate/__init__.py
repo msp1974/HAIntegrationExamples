@@ -41,6 +41,8 @@ PLATFORMS: list[Platform] = [
     Platform.SWITCH,
 ]
 
+type MyConfigEntry = ConfigEntry[RuntimeData]
+
 
 @dataclass
 class RuntimeData:
@@ -50,10 +52,8 @@ class RuntimeData:
     cancel_update_listener: Callable
 
 
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, config_entry: MyConfigEntry) -> bool:
     """Set up Example Integration from a config entry."""
-
-    hass.data.setdefault(DOMAIN, {})
 
     # ----------------------------------------------------------------------------
     # Initialise the coordinator that manages data updates from your api.
@@ -89,27 +89,21 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     )
 
     # ----------------------------------------------------------------------------
-    # Add the coordinator and update listener to hass data to make
+    # Add the coordinator and update listener to your config entry to make
     # accessible throughout your integration
-    # Note: this will change on HA2024.6 to save on the config entry.
     # ----------------------------------------------------------------------------
-    hass.data[DOMAIN][config_entry.entry_id] = RuntimeData(
-        coordinator, cancel_update_listener
-    )
+    config_entry.runtime_data = RuntimeData(coordinator, cancel_update_listener)
 
     # ----------------------------------------------------------------------------
     # Setup platforms (based on the list of entity types in PLATFORMS defined above)
     # This calls the async_setup method in each of your entity type files.
     # ----------------------------------------------------------------------------
-    for platform in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(config_entry, platform)
-        )
+    await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
     # ----------------------------------------------------------------------------
     # Setup global services
     # This can be done here but included in a seperate file for ease of reading.
-    # See also switch.py for entity services examples
+    # See also light.py for entity services examples
     # ----------------------------------------------------------------------------
     ExampleServicesSetup(hass, config_entry)
 
@@ -138,7 +132,7 @@ async def async_remove_config_entry_device(
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, config_entry: MyConfigEntry) -> bool:
     """Unload a config entry.
 
     This is called when you remove your integration or shutdown HA.
@@ -149,14 +143,5 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
     for service in hass.services.async_services_for_domain(DOMAIN):
         hass.services.async_remove(DOMAIN, service)
 
-    # Unload platforms
-    unload_ok = await hass.config_entries.async_unload_platforms(
-        config_entry, PLATFORMS
-    )
-
-    # Remove the config entry from the hass data object.
-    if unload_ok:
-        hass.data[DOMAIN].pop(config_entry.entry_id)
-
-    # Return that unloading was successful.
-    return unload_ok
+    # Unload platforms and return result
+    return await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)

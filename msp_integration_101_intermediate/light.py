@@ -7,13 +7,13 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from . import MyConfigEntry
 from .base import ExampleBaseEntity
-from .const import CONF_OFF_TIME, DOMAIN, SET_OFF_TIMER_ENTITY_SERVICE_NAME
+from .const import CONF_OFF_TIME, SET_OFF_TIMER_ENTITY_SERVICE_NAME
 from .coordinator import ExampleCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -21,14 +21,12 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: MyConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ):
     """Set up the Binary Sensors."""
-    # This gets the data update coordinator from hass.data as specified in your __init__.py
-    coordinator: ExampleCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ].coordinator
+    # This gets the data update coordinator from the config entry runtime data as specified in your __init__.py
+    coordinator: ExampleCoordinator = config_entry.runtime_data.coordinator
 
     # ----------------------------------------------------------------------------
     # Here we are going to add some lights entities for the lights in our mock data.

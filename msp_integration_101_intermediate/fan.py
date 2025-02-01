@@ -4,13 +4,12 @@ import logging
 from typing import Any
 
 from homeassistant.components.fan import FanEntity, FanEntityFeature
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.percentage import percentage_to_ranged_value
 
+from . import MyConfigEntry
 from .base import ExampleBaseEntity
-from .const import DOMAIN
 from .coordinator import ExampleCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -18,14 +17,12 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: MyConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ):
     """Set up the Fans."""
-    # This gets the data update coordinator from hass.data as specified in your __init__.py
-    coordinator: ExampleCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ].coordinator
+    # This gets the data update coordinator from the config entry runtime data as specified in your __init__.py
+    coordinator: ExampleCoordinator = config_entry.runtime_data.coordinator
 
     # ----------------------------------------------------------------------------
     # Here we are going to add our fan entity for the fan in our mock data.

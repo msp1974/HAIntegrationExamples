@@ -18,7 +18,6 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
@@ -28,8 +27,8 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from . import MyConfigEntry
 from .base import ExampleBaseEntity
-from .const import DOMAIN
 from .coordinator import ExampleCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,14 +44,12 @@ class SensorTypeClass:
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: MyConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ):
     """Set up the Sensors."""
-    # This gets the data update coordinator from hass.data as specified in your __init__.py
-    coordinator: ExampleCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ].coordinator
+    # This gets the data update coordinator from the config entry runtime data as specified in your __init__.py
+    coordinator: ExampleCoordinator = config_entry.runtime_data.coordinator
 
     # ----------------------------------------------------------------------------
     # Here we enumerate the sensors in your data value from your
