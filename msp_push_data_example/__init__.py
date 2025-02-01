@@ -20,6 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
 
+type MyConfigEntry = ConfigEntry[RuntimeData]
 
 @dataclass
 class RuntimeData:
@@ -29,10 +30,8 @@ class RuntimeData:
     cancel_update_listener: Callable
 
 
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, config_entry: MyConfigEntry) -> bool:
     """Set up Example Integration from a config entry."""
-
-    hass.data.setdefault(DOMAIN, {})
 
     # Initialise the coordinator that manages data updates from your api.
     # This is defined in coordinator.py
@@ -42,28 +41,28 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     # async_config_entry_first_refresh() is special in that it does not log errors if it fails
     await coordinator.async_config_entry_first_refresh()
 
+
     # Test to see if api initialised correctly, else raise ConfigNotReady to make HA retry setup
     # TODO: Change this to match how your api will know if connected or successful update
     if not coordinator.api.connected:
         raise ConfigEntryNotReady
 
     # Initialise a listener for config flow options changes.
-    # See config_flow for defining an options setting that shows up as configure on the integration.
-    cancel_update_listener = config_entry.add_update_listener(_async_update_listener)
-
-    # Add the coordinator and update listener to hass data to make
-    # accessible throughout your integration
-    # Note: this will change on HA2024.6 to save on the config entry.
-    hass.data[DOMAIN][config_entry.entry_id] = RuntimeData(
-        coordinator, cancel_update_listener
+    # This will be removed automatically if the integraiton is unloaded.
+    # See config_flow for defining an options setting that shows up as configure
+    # on the integration.
+    # If you do not want any config flow options, no need to have listener.
+    cancel_update_listener = config_entry.async_on_unload(
+        config_entry.add_update_listener(_async_update_listener)
     )
+
+    # Add the coordinator and update listener to config runtime data to make
+    # accessible throughout your integration
+    config_entry.runtime_data = RuntimeData(coordinator, cancel_update_listener)
 
     # Setup platforms (based on the list of entity types in PLATFORMS defined above)
     # This calls the async_setup method in each of your entity type files.
-    for platform in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(config_entry, platform)
-        )
+    await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
     # Return true to denote a successful setup.
     return True
@@ -85,22 +84,10 @@ async def async_remove_config_entry_device(
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, config_entry: MyConfigEntry) -> bool:
     """Unload a config entry."""
     # This is called when you remove your integration or shutdown HA.
     # If you have created any custom services, they need to be removed here too.
 
-    # Remove the config options update listener
-    hass.data[DOMAIN][config_entry.entry_id].cancel_update_listener()
-
-    # Unload platforms
-    unload_ok = await hass.config_entries.async_unload_platforms(
-        config_entry, PLATFORMS
-    )
-
-    # Remove the config entry from the hass data object.
-    if unload_ok:
-        hass.data[DOMAIN].pop(config_entry.entry_id)
-
-    # Return that unloading was successful.
-    return unload_ok
+    # Unload platforms and return result
+    return await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)
