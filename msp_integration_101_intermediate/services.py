@@ -14,12 +14,12 @@ https://developers.home-assistant.io/docs/dev_101_services/
 
 import voluptuous as vol
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_DEVICE_ID, ATTR_NAME
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse, callback
 from homeassistant.exceptions import HomeAssistantError
 import homeassistant.helpers.device_registry as dr
 
-from . import MyConfigEntry
 from .const import DOMAIN, RENAME_DEVICE_SERVICE_NAME, RESPONSE_SERVICE_NAME
 from .coordinator import ExampleCoordinator
 
@@ -43,7 +43,7 @@ RESPONSE_SERVICE_SCHEMA = vol.Schema(
 class ExampleServicesSetup:
     """Class to handle Integration Services."""
 
-    def __init__(self, hass: HomeAssistant, config_entry: MyConfigEntry) -> None:
+    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         """Initialise services."""
         self.hass = hass
         self.config_entry = config_entry
