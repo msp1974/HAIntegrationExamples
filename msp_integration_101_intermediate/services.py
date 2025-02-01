@@ -14,12 +14,12 @@ https://developers.home-assistant.io/docs/dev_101_services/
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_DEVICE_ID, ATTR_NAME
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse, callback
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.device_registry import async_get as async_get_dr
+import homeassistant.helpers.device_registry as dr
 
+from . import MyConfigEntry
 from .const import DOMAIN, RENAME_DEVICE_SERVICE_NAME, RESPONSE_SERVICE_NAME
 from .coordinator import ExampleCoordinator
 
@@ -43,13 +43,11 @@ RESPONSE_SERVICE_SCHEMA = vol.Schema(
 class ExampleServicesSetup:
     """Class to handle Integration Services."""
 
-    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    def __init__(self, hass: HomeAssistant, config_entry: MyConfigEntry) -> None:
         """Initialise services."""
         self.hass = hass
         self.config_entry = config_entry
-        self.coordinator: ExampleCoordinator = hass.data[DOMAIN][
-            config_entry.entry_id
-        ].coordinator
+        self.coordinator: ExampleCoordinator = config_entry.runtime_data.coordinator
 
         self.setup_services()
 
@@ -114,14 +112,16 @@ class ExampleServicesSetup:
                 device = self.coordinator.get_device(device_id)
 
                 # Get the device registry
-                dr = async_get_dr(self.hass)
+                device_registry = dr.async_get(self.hass)
 
                 # Get the device entry in the registry by its identifiers.  This is the same as
                 # we used to set them in base.py
-                device_entry = dr.async_get_device([(DOMAIN, device["device_uid"])])
+                device_entry = device_registry.async_get_device(
+                    [(DOMAIN, device["device_uid"])]
+                )
 
                 # Update our device entry with the new name.  You will see this change in the UI
-                dr.async_update_device(device_entry.id, name=device_name)
+                device_registry.async_update_device(device_entry.id, name=device_name)
 
             await self.coordinator.async_request_refresh()
 
