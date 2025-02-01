@@ -27,7 +27,6 @@ class RuntimeData:
     """Class to hold your data."""
 
     coordinator: DataUpdateCoordinator
-    cancel_update_listener: Callable
 
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: MyConfigEntry) -> bool:
@@ -51,13 +50,13 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: MyConfigEntry) ->
     # See config_flow for defining an options setting that shows up as configure
     # on the integration.
     # If you do not want any config flow options, no need to have listener.
-    cancel_update_listener = config_entry.async_on_unload(
+    config_entry.async_on_unload(
         config_entry.add_update_listener(_async_update_listener)
     )
 
     # Add the coordinator and update listener to config runtime data to make
     # accessible throughout your integration
-    config_entry.runtime_data = RuntimeData(coordinator, cancel_update_listener)
+    config_entry.runtime_data = RuntimeData(coordinator)
 
     # Setup platforms (based on the list of entity types in PLATFORMS defined above)
     # This calls the async_setup method in each of your entity type files.
